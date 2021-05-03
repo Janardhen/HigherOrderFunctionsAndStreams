@@ -19,177 +19,228 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Contains learning tests to demonstrate knowledge of higher-order functions
- * as used within
- * <a href="https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/util/stream/package-summary.html">
+ * Contains learning tests to demonstrate knowledge of higher-order functions as
+ * used within <a href=
+ * "https://docs.oracle.com/en/java/javase/16/docs/api/java.base/java/util/stream/package-summary.html">
  * Java's Stream API</a>.
  */
 public class HigherOrderFunctionsLearningTest {
 
-    /**
-     * Demonstrate the collection of a stream into a list and the comparison of two iterables.
-     * This test should not be changed. It should simply pass, meaning it shows the correct
-     * structure and can be used to ensure correct system configuration.
-     */
-    @Test
-    public void testCollect() {
-        List<Integer> actual =
-                Stream.of(1, 2, 3)
-                        .collect(Collectors.toList());
-        List<Integer> expected = List.of(1, 2, 3);
-        Assertions.assertIterableEquals(expected, actual);
-    }
+	/**
+	 * Demonstrate the collection of a stream into a list and the comparison of two
+	 * iterables. This test should not be changed. It should simply pass, meaning it
+	 * shows the correct structure and can be used to ensure correct system
+	 * configuration.
+	 */
+	@Test
+	public void testCollect() {
+		List<Integer> actual = Stream.of(1, 2, 3).collect(Collectors.toList());
+		List<Integer> expected = List.of(1, 2, 3);
+		Assertions.assertIterableEquals(expected, actual);
+	}
 
-    /**
-     * Use the <code>map</code> function to transform a list of numbers.
-     */
-    @Test
-    public void testMap() {
-        Stream<Integer> input = Stream.of(1, 2, 3);
-        List<Integer> actual = null; // TODO: Replace the `actual` with your solution, here and in all the following.
-        List<Integer> expected = List.of(2, 3, 4);
-        Assertions.assertIterableEquals(expected, actual);
-    }
+	/**
+	 * Use the <code>map</code> function to transform a list of numbers.
+	 */
+	@Test
+	public void testMap() {
+		Stream<Integer> input = Stream.of(1, 2, 3);
+		List<Integer> actual = input.map(i -> i + 1).collect(Collectors.toList()); // TODO: Replace the `actual` with
+																					// your solution, here and in all
+																					// the following.
+		List<Integer> expected = List.of(2, 3, 4);
+		Assertions.assertIterableEquals(expected, actual);
+	}
 
-    /**
-     * Use the <code>filter</code> function to find all the codes that start with 'b'.
-     */
-    @Test
-    public void testFilter() {
-        Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
-        List<String> actual = null;
-        List<String> expected = List.of("b1", "b2", "b3");
-        Assertions.assertIterableEquals(expected, actual);
-    }
+	/**
+	 * Use the <code>filter</code> function to find all the codes that start with
+	 * 'b'.
+	 */
+	@Test
+	public void testFilter() {
+		Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
+		List<String> actual = input.filter(word -> word.contains("b")).collect(Collectors.toList());
+		List<String> expected = List.of("b1", "b2", "b3");
+		Assertions.assertIterableEquals(expected, actual);
+	}
 
-    /**
-     * Use the <code>distinct</code> function to extract all of the unique alphabetic
-     * code prefixes.
-     */
-    @Test
-    public void testDistinct() {
-        Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
-        List<String> actual = null;
-        List<String> expected = List.of("a", "b");
-        Assertions.assertIterableEquals(expected, actual);
-    }
+	/**
+	 * Use the <code>distinct</code> function to extract all of the unique
+	 * alphabetic code prefixes.
+	 */
+	@Test
+	public void testDistinct() {
+		Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
+		List<String> actual = input.map(a -> String.valueOf(a.charAt(0))).distinct().collect(Collectors.toList());
+		List<String> expected = List.of("a", "b");
+		Assertions.assertIterableEquals(expected, actual);
+	}
 
-    /**
-     * Concatenate all the codes that end in an even number.
-     */
-    @Test
-    public void testConcatEven() {
-        Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
-        String actual = null;
-        String expected = "a2b2";
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Concatenate all the codes that end in an even number.
+	 */
+	@Test
+	public void testConcatEven() {
+		Stream<String> input = Stream.of("a1", "a2", "a3", "b1", "b2", "b3");
+		String actual = input.map(x -> Integer.parseInt(x.substring(1, 2)) % 2 == 0 ? x : "")
+				.collect(Collectors.joining(""));
+		String expected = "a2b2";
+		Assertions.assertEquals(expected, actual);
+	}
 
-    /**
-     * Count the number of changes in the data that predate March 1, 2021 (UTC).
-     */
-    @Test
-    public void testCountByDate() {
-        Instant instant = Instant.parse("2021-03-01T00:00:00.00Z");
-        Stream<Revision> input = getRevisions("soup04.json");
-        long actual = 0;
-        int expected = 3;
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Count the number of changes in the data that predate March 1, 2021 (UTC).
+	 */
+	@Test
+	public void testCountByDate() {
+		Instant instant = Instant.parse("2021-03-01T00:00:00.00Z");
+		Stream<Revision> input = getRevisions("soup04.json");
 
-    /**
-     * Load the given resource as a stream of {@link Revision revisions}.
-     * @param resourceName The name of the resource in the test/resources folder
-     * @return a stream of revisions
-     */
-    private Stream<Revision> getRevisions(String resourceName) {
-        // This implementation uses JsonPath to extract the portion of the file that
-        // contains the revision data. Jackson databinding is then used to unmarshall
-        // that data into Revision objects.
-        // The JavaTimeModule is necessary in order to automatically unmarshall the
-        // timestamp strings into JDK8 (JSR310) Instant objects.
-        try {
-            InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
-            JSONArray jsonArray = JsonPath.read(in, "$..revisions.*");
-            ObjectMapper mapper = new ObjectMapper()
-                    .registerModule(new JavaTimeModule());
-            Revision[] revisions = mapper.readValue(jsonArray.toString(), Revision[].class);
-            return Arrays.stream(revisions);
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
+		long actual = input.filter(date -> date.timestamp.isBefore(instant)).count();
+		int expected = 3;
+		Assertions.assertEquals(expected, actual);
+	}
 
-    /**
-     * Count the number of revisions made by the whitelisted users.
-     */
-    @Test
-    public void testCountWhitelisted() {
-        List<String> whitelist = List.of("Sleepy Beauty", "Spencer", "QueasyQ");
-        Stream<Revision> input = getRevisions("soup30.json");
-        long actual = 0;
-        int expected = 3;
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Load the given resource as a stream of {@link Revision revisions}.
+	 * 
+	 * @param resourceName The name of the resource in the test/resources folder
+	 * @return a stream of revisions
+	 */
+	private Stream<Revision> getRevisions(String resourceName) {
+		// This implementation uses JsonPath to extract the portion of the file that
+		// contains the revision data. Jackson databinding is then used to unmarshall
+		// that data into Revision objects.
+		// The JavaTimeModule is necessary in order to automatically unmarshall the
+		// timestamp strings into JDK8 (JSR310) Instant objects.
+		try {
+			InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
+			JSONArray jsonArray = JsonPath.read(in, "$..revisions.*");
+			ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+			Revision[] revisions = mapper.readValue(jsonArray.toString(), Revision[].class);
+			return Arrays.stream(revisions);
+		} catch (IOException ioe) {
+			throw new RuntimeException(ioe);
+		}
+	}
 
-    /**
-     * Count the revisions, omitting anyone with "bot" in their name (case-insensitive).
-     */
-    @Test
-    public void testCountNonBots() {
-        Stream<Revision> input = getRevisions("soup30.json");
-        long actual = 0;
-        int expected = 26;
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Count the number of revisions made by the whitelisted users.
+	 */
+	@Test
+	public void testCountWhitelisted() {
+		List<String> whitelist = List.of("Sleepy Beauty", "Spencer", "QueasyQ");
+		Stream<Revision> input = getRevisions("soup30.json");
+		long actual = input.filter(name -> whitelist.stream().collect(Collectors.joining("")).contains(name.user))
+				.count();
+		int expected = 3;
+		Assertions.assertEquals(expected, actual);
+	}
 
-    /**
-     * Count the changes made in February (in UTC).
-     */
-    @Test
-    public void testCountChangesInFebruary() {
-        Stream<Revision> input = getRevisions("soup30.json");
-        long actual = 0;
-        int expected = 9;
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Count the revisions, omitting anyone with "bot" in their name
+	 * (case-insensitive).
+	 */
+	@Test
+	public void testCountNonBots() {
+		Stream<Revision> input = getRevisions("soup30.json");
+		long actual = input.filter(name -> !name.user.toLowerCase().contains("bot")).count();
 
-    /**
-     * Count the number of changes made in each month (in UTC).
-     */
-    @Test
-    public void testCountChangesByMonth() {
-        Stream<Revision> input = getRevisions("soup04.json");
-        Map<Month, Long> actual = null;
-        Map<Month, Long> expected = Map.of(Month.FEBRUARY, 3L, Month.MARCH, 1L);
-        Assertions.assertEquals(expected, actual);
-    }
+		int expected = 26;
+		Assertions.assertEquals(expected, actual);
+	}
 
-    /**
-     * Determine which month had the most changes.
-     * If more than one month is tied for the most, return an arbitrary one of these.
-     */
-    @Test
-    public void testDetermineMostActiveMonth() {
-        Stream<Revision> input = getRevisions("soup30.json");
-        Month actual = null;
-        Month expected = Month.FEBRUARY;
-        Assertions.assertEquals(expected, actual);
-    }
+	/**
+	 * Count the changes made in February (in UTC).
+	 */
+	@Test
+	public void testCountChangesInFebruary() {
+		Stream<Revision> input = getRevisions("soup30.json");
+		long actual = input.filter(x -> x.timestamp.toString().substring(5, 7).equals("02")).count();
+		int expected = 9;
+		Assertions.assertEquals(expected, actual);
+	}
 
-    /**
-     * A learning test that validates reading JSON results correctly.
-     * There is no need to modify this test.
-     */
-    @Test
-    public void testReadRevisions() {
-        Stream<Revision> revisions = getRevisions("soup04.json");
-        Assertions.assertEquals(4, revisions.count());
-    }
+	/**
+	 * Count the number of changes made in each month (in UTC).
+	 */
+	@Test
+	public void testCountChangesByMonth() {
+		Stream<Revision> input = getRevisions("soup04.json");
+		Map<Month, Long> actual = input.collect(Collectors.groupingBy(Revision::getMonth, Collectors.counting()));
+		Map<Month, Long> expected = Map.of(Month.FEBRUARY, 3L, Month.MARCH, 1L);
+		System.out.println(actual.toString());
+		Assertions.assertEquals(expected, actual);
+	}
+
+	/**
+	 * Determine which month had the most changes. If more than one month is tied
+	 * for the most, return an arbitrary one of these.
+	 */
+	@Test
+	public void testDetermineMostActiveMonth() {
+		Stream<Revision> input = getRevisions("soup30.json");
+		Month actual = input.collect(Collectors.groupingBy(Revision::getMonth, Collectors.counting())).entrySet()
+				.stream().max((entry1, entry2) -> entry1.getValue() > entry2.getValue() ? 1 : -1).get().getKey();
+		Month expected = Month.FEBRUARY;
+		Assertions.assertEquals(expected, actual);
+	}
+
+	/**
+	 * A learning test that validates reading JSON results correctly. There is no
+	 * need to modify this test.
+	 */
+	@Test
+	public void testReadRevisions() {
+		Stream<Revision> revisions = getRevisions("soup04.json");
+		Assertions.assertEquals(4, revisions.count());
+	}
 }
 
 @JsonAutoDetect
 class Revision {
-    public String user;
-    public Instant timestamp;
+	public String user;
+	public Instant timestamp;
+
+	public Instant getTimestamp() {
+		return timestamp;
+	}
+
+	public Month getMonth() {
+		Instant ins = getTimestamp();
+		if (ins.toString().substring(5, 7).equals("01")) {
+			return Month.JANUARY;
+		}
+		if (ins.toString().substring(5, 7).equals("02")) {
+			return Month.FEBRUARY;
+		}
+		if (ins.toString().substring(5, 7).equals("03")) {
+			return Month.MARCH;
+		}
+		if (ins.toString().substring(5, 7).equals("04")) {
+			return Month.APRIL;
+		}
+		if (ins.toString().substring(5, 7).equals("05")) {
+			return Month.MAY;
+		}
+		if (ins.toString().substring(5, 7).equals("06")) {
+			return Month.JUNE;
+		}
+		if (ins.toString().substring(5, 7).equals("07")) {
+			return Month.JULY;
+		}
+		if (ins.toString().substring(5, 7).equals("08")) {
+			return Month.AUGUST;
+		}
+		if (ins.toString().substring(5, 7).equals("9")) {
+			return Month.SEPTEMBER;
+		}
+		if (ins.toString().substring(5, 7).equals("10")) {
+			return Month.OCTOBER;
+		}
+		if (ins.toString().substring(5, 7).equals("11")) {
+			return Month.NOVEMBER;
+		}
+		return Month.DECEMBER;
+	}
 }
